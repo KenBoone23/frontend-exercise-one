@@ -66,6 +66,26 @@ app.get("/ingredients/types", (req, res) => {
     });
 });
 
+app.get("/recipes", async (req, res) => {
+  const recipes = await loadData();
+  try {
+    let { page, size } = req.query;
+
+    if (!page) {
+      page = 1;
+    }
+
+    if (!size) {
+      size = 10;
+    }
+
+    const pagedRecipes = await recipes.slice((page - 1) * size, page * size);
+    res.json(pagedRecipes);
+  } catch (error) {
+    res.sendStatus(500);
+  }
+});
+
 app.listen(4000, () => {
   console.log("Server is running on port 4000");
 });
