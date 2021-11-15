@@ -45,13 +45,13 @@ app.get("/ingredients", (req, res) => {
 
 app.get("/ingredients/types", (req, res) => {
   dataHandler((recipes) => {
-    let ingredients = [];
+    let recipesTypes = [];
     recipes.map((recipe) => {
-      ingredients.push(
+      recipesTypes.push(
         ...recipe.ingredients.map((ingredient) => ingredient.type)
       );
     });
-    res.json([...new Set(ingredients)]);
+    res.json([...new Set(recipesTypes)]);
   });
 });
 
