@@ -9,21 +9,24 @@ const corsOptions = {
   optionSuccessStatus: 200,
 };
 
-function dataHandler(callback) {
-  fs.readFile("data.json", (err, data) => {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Something broke!");
-    } else {
-      try {
-        const recipes = JSON.parse(data);
-        callback(recipes);
-      } catch (err) {
-        console.log("json parse failed", err);
+async function loadData() {
+  const promise = new Promise((resolve, reject) => {
+    fs.readFile("data.json", (err, data) => {
+      if (err) {
+        console.log(err);
         res.status(500).send("Something broke!");
+      } else {
+        try {
+          const recipes = JSON.parse(data);
+          resolve(recipes);
+        } catch (err) {
+          console.log("json parse failed", err);
+          reject();
+        }
       }
-    }
+    });
   });
+  return promise;
 }
 
 app.use(cors(corsOptions));
@@ -32,27 +35,35 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.get("/ingredients", (req, res) => {
-  dataHandler((recipes) => {
-    let ingredients = [];
-    recipes.map((recipe) => {
-      ingredients.push(
-        ...recipe.ingredients.map((ingredient) => ingredient.name)
-      );
+  loadData()
+    .then((recipes) => {
+      let ingredients = [];
+      recipes.map((recipe) => {
+        ingredients.push(
+          ...recipe.ingredients.map((ingredient) => ingredient.name)
+        );
+      });
+      res.json([...new Set(ingredients)]);
+    })
+    .catch(() => {
+      res.status(500).send("Ingredients api broken!");
     });
-    res.json([...new Set(ingredients)]);
-  });
 });
 
 app.get("/ingredients/types", (req, res) => {
-  dataHandler((recipes) => {
-    let recipesTypes = [];
-    recipes.map((recipe) => {
-      recipesTypes.push(
-        ...recipe.ingredients.map((ingredient) => ingredient.type)
-      );
+  loadData()
+    .then((recipes) => {
+      let recipesTypes = [];
+      recipes.map((recipe) => {
+        recipesTypes.push(
+          ...recipe.ingredients.map((ingredient) => ingredient.type)
+        );
+      });
+      res.json([...new Set(recipesTypes)]);
+    })
+    .catch(() => {
+      res.status(500).send("Ingredients types api broken!");
     });
-    res.json([...new Set(recipesTypes)]);
-  });
 });
 
 app.listen(4000, () => {
