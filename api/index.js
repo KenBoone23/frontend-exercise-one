@@ -126,6 +126,24 @@ app.get("/recipes/:id", (req, res) => {
     });
 });
 
+// /recipes/cooketime/40
+app.get("/recipes/cooketime/:cookeTime", (req, res) => {
+  loadData()
+    .then((recipes) => {
+      const matchedRecipes = [];
+      recipes.forEach((recipe) => {
+        const reducer = (accumulator, curr) => accumulator + curr;
+        if (recipe.timers.reduce(reducer) <= req.params.cookeTime) {
+          matchedRecipes.push(recipe);
+        }
+      });
+      res.json(matchedRecipes);
+    })
+    .catch(() => {
+      res.status(500).send("Recipe by id api broken!");
+    });
+});
+
 app.listen(4000, () => {
   console.log("Server is running on port 4000");
 });
