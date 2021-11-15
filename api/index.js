@@ -109,6 +109,23 @@ app.post("/recipes/by-products", (req, res) => {
     });
 });
 
+// /recipes/recipe-2
+app.get("/recipes/:id", (req, res) => {
+  loadData()
+    .then((recipes) => {
+      const fuse = new Fuse(recipes, {
+        keys: ["id"],
+        minMatchCharLength: 2,
+        threshold: 0.0,
+      });
+      const result = fuse.search(String(req.params.id));
+      res.json(result);
+    })
+    .catch(() => {
+      res.status(500).send("Recipe by id api broken!");
+    });
+});
+
 app.listen(4000, () => {
   console.log("Server is running on port 4000");
 });
