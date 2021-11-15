@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const fs = require("fs");
+const Fuse = require("fuse.js");
 
 const corsOptions = {
   origin: "*",
@@ -84,6 +85,28 @@ app.get("/recipes", async (req, res) => {
   } catch (error) {
     res.sendStatus(500);
   }
+});
+
+/*
+{"products": "sugar | vegetable oil" }
+ */
+app.post("/recipes/by-products", (req, res) => {
+  loadData()
+    .then((recipes) => {
+      const fuse = new Fuse(recipes, {
+        keys: ["ingredients.name"],
+        findAllMatches: true,
+        minMatchCharLength: 2,
+        threshold: 0.0,
+        ignoreLocation: true,
+        useExtendedSearch: true,
+      });
+      const result = fuse.search(String(req.body.products));
+      res.json(result);
+    })
+    .catch(() => {
+      res.status(500).send("Recipes prodcts api broken!");
+    });
 });
 
 app.listen(4000, () => {
