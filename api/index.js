@@ -43,6 +43,18 @@ app.get("/ingredients", (req, res) => {
   });
 });
 
+app.get("/ingredients/types", (req, res) => {
+  dataHandler((recipes) => {
+    let ingredients = [];
+    recipes.map((recipe) => {
+      ingredients.push(
+        ...recipe.ingredients.map((ingredient) => ingredient.type)
+      );
+    });
+    res.json([...new Set(ingredients)]);
+  });
+});
+
 app.listen(4000, () => {
   console.log("Server is running on port 4000");
 });
