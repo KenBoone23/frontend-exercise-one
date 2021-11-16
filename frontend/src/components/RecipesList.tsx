@@ -2,6 +2,7 @@ import { Button, Box, Link } from "@chakra-ui/react";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { Link as ReactRouterLink } from "react-router-dom";
+import { getRecipes } from "../api";
 
 type RecipesListProps = {};
 
@@ -12,10 +13,6 @@ type Recipe = {
 
 export const RecipesList: React.FC<RecipesListProps> = ({}) => {
   const [page, setPage] = useState(1);
-  const fetchRecipes = (page = 1) =>
-    fetch(`http://localhost:4000/recipes/?page=${page}&size=3`).then((res) =>
-      res.json()
-    );
 
   const {
     isLoading,
@@ -24,9 +21,13 @@ export const RecipesList: React.FC<RecipesListProps> = ({}) => {
     data,
     isFetching,
     isPreviousData,
-  } = useQuery<Recipe[], Error>(["recipes", page], () => fetchRecipes(page), {
-    keepPreviousData: true,
-  });
+  } = useQuery<Recipe[], Error>(
+    ["recipes", page],
+    () => getRecipes(page).then((res) => res.data),
+    {
+      keepPreviousData: true,
+    }
+  );
 
   return (
     <div>
