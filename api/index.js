@@ -119,7 +119,11 @@ app.get("/recipes/:id", (req, res) => {
         threshold: 0.0,
       });
       const result = fuse.search(String(req.params.id));
-      res.json(result);
+      if (result.length > 0) {
+        res.json(result[0].item);
+      } else {
+        res.json({});
+      }
     })
     .catch(() => {
       res.status(500).send("Recipe by id api broken!");
